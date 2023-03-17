@@ -47,8 +47,8 @@ spec:
         - name: docker-demo
           image: edgeclustermgmt.azurecr.io/sentinel/docker-demo:latest
           envFrom:
-            - configMapRef:
-              name: configmap.yaml
+          - configMapRef:
+              name: configmap-file
           ports:
             - containerPort: 8080
               protocol: TCP
