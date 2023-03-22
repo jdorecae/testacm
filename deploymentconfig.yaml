@@ -1,10 +1,10 @@
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: sentinel
----
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+### Replaced
+# kind: DeploymentConfig
+# apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
+#
+###
 metadata:
   name: docker-demo
   namespace: sentinel
@@ -16,30 +16,65 @@ metadata:
     app.kubernetes.io/part-of: docker-demo-app
     app.openshift.io/runtime-namespace: sentinel
 spec:
+
+  ### Replaced (https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment)
+  # strategy:
+  #   type: Rolling
+  #   rollingParams:
+  #     updatePeriodSeconds: 1
+  #     intervalSeconds: 1
+  #     timeoutSeconds: 600
+  #     maxUnavailable: 25%
+  #     maxSurge: 25%
+  #   resources: {}
+  #   activeDeadlineSeconds: 21600
   strategy:
-    type: Rolling
-    rollingParams:
-      updatePeriodSeconds: 1
-      intervalSeconds: 1
-      timeoutSeconds: 600
+    type: RollingUpdate
+    rollingUpdate:
+      ### Deleted
+      # updatePeriodSeconds: 1
+      # intervalSeconds: 1
+      ### Deleted, replaced by .specs.minReadySeconds below  
+      # timeoutSeconds: 600
       maxUnavailable: 25%
       maxSurge: 25%
-    resources: {}
-    activeDeadlineSeconds: 21600
+    ### Deleted, replaced by .specs.progressDeadlineSeconds below  
+    # activeDeadlineSeconds: 21600
+
+  minReadySeconds: 600 #https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds
+  progressDeadlineSeconds: 21600 #https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#progress-deadline-seconds
+  #
+  ###
+
   replicas: 1
   revisionHistoryLimit: 10
-  test: false
+  ### Deleted
+  # test: false
+
+  ### Replaced
+  # selector:
+  #   app: docker-demo
+  #   deploymentconfig: docker-demo
   selector:
-    app: docker-demo
-    deploymentconfig: docker-demo
+    matchLabels:
+      app: docker-demo
+  #
+  ###
   template:
     metadata:
-      creationTimestamp: null
+
+      ### Deleted
+      # creationTimestamp: null 
+
       labels:
         app: docker-demo
-        deploymentconfig: docker-demo
-      annotations:
-        openshift.io/generated-by: OpenShiftWebConsole
+        ### Deleted
+        # deploymentconfig: docker-demo
+
+      ### Deleted
+      # annotations:
+      #   openshift.io/generated-by: OpenShiftWebConsole
+
     spec:
       imagePullSecrets: 
         - name: acr
